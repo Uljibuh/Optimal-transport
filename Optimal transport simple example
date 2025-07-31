@@ -1,0 +1,189 @@
+# Optimal Transport: Super Simple Example with Numbers
+
+
+
+## The Simplest Case: 2 Dirt Piles, 2 Holes
+
+### Setup
+- **Pile A**: 3 tons of dirt at location (0, 0)
+- **Pile B**: 2 tons of dirt at location (4, 0)
+- **Hole X**: needs 2 tons at location (1, 0)  
+- **Hole Y**: needs 3 tons at location (3, 0)
+
+**Total dirt = 3 + 2 = 5 tons**
+**Total needed = 2 + 3 = 5 tons** ✓
+
+### Step 1: Calculate Distances (Costs)
+
+Since all points are on a line (y = 0), distance is just the difference in x-coordinates:
+
+**Distance Matrix:**
+- A to X: |1 - 0| = 1 unit
+- A to Y: |3 - 0| = 3 units  
+- B to X: |1 - 4| = 3 units
+- B to Y: |3 - 4| = 1 unit
+
+**Cost Matrix (at $10 per ton per unit):**
+- A to X: 1 × $10 = $10 per ton
+- A to Y: 3 × $10 = $30 per ton
+- B to X: 3 × $10 = $30 per ton  
+- B to Y: 1 × $10 = $10 per ton
+
+| From/To | Hole X | Hole Y |
+|---------|---------|---------|
+| Pile A (3 tons) | $10 | $30 |
+| Pile B (2 tons) | $30 | $10 |
+
+### Step 2: Convert to Fractions (Probability Measures)
+
+**Source distribution μ:**
+- μ(A) = 3/5 = 0.6 (Pile A has 60% of total dirt)
+- μ(B) = 2/5 = 0.4 (Pile B has 40% of total dirt)
+
+**Target distribution ν:**  
+- ν(X) = 2/5 = 0.4 (Hole X needs 40% of total dirt)
+- ν(Y) = 3/5 = 0.6 (Hole Y needs 60% of total dirt)
+
+### Step 3: Find Transport Plan
+
+We need to decide: **How much dirt goes from each pile to each hole?**
+
+Let π(i,j) = fraction of total dirt moving from pile i to hole j
+
+**Constraints:**
+1. π(A,X) + π(A,Y) = 0.6 (all dirt from A must go somewhere)
+2. π(B,X) + π(B,Y) = 0.4 (all dirt from B must go somewhere)  
+3. π(A,X) + π(B,X) = 0.4 (hole X must get exactly what it needs)
+4. π(A,Y) + π(B,Y) = 0.6 (hole Y must get exactly what it needs)
+5. All π(i,j) ≥ 0 (can't move negative dirt)
+
+### Step 4: Try Different Solutions (SLOW BREAKDOWN)
+
+I need to figure out how much dirt to send from each pile to each hole.
+
+**Remember what I have:**
+- Pile A has 0.6 (which is 3 tons)
+- Pile B has 0.4 (which is 2 tons)
+- Hole X needs 0.4 (which is 2 tons)  
+- Hole Y needs 0.6 (which is 3 tons)
+
+**Remember the costs:**
+- A→X costs $10 per ton (CHEAP)
+- A→Y costs $30 per ton (EXPENSIVE)
+- B→X costs $30 per ton (EXPENSIVE)
+- B→Y costs $10 per ton (CHEAP)
+
+**Solution 1: "Try to use cheap routes first"**
+
+**Step 4a:** Look for the cheapest moves
+- A→X costs $10 ← This is cheap!
+- B→Y costs $10 ← This is cheap!
+
+**Step 4b:** Try to send as much as possible on these cheap routes
+
+**For A→X (cheap route):**
+- A has 0.6 available
+- X needs 0.4  
+- How much can I send? The smaller amount = min(0.6, 0.4) = 0.4
+- So: Send 0.4 from A to X
+
+**For B→Y (cheap route):**
+- B has 0.4 available  
+- Y needs 0.6
+- How much can I send? The smaller amount = min(0.4, 0.6) = 0.4
+- So: Send 0.4 from B to Y
+
+**Step 4c:** Check what's left over
+
+After using cheap routes:
+- A started with 0.6, sent 0.4 to X, has 0.6 - 0.4 = 0.2 left
+- B started with 0.4, sent 0.4 to Y, has 0.4 - 0.4 = 0.0 left
+- X needed 0.4, got 0.4 from A, needs 0.4 - 0.4 = 0.0 more ✓ (satisfied!)
+- Y needed 0.6, got 0.4 from B, needs 0.6 - 0.4 = 0.2 more
+
+**Step 4d:** Handle leftovers
+- A still has 0.2 left to give
+- Y still needs 0.2 more
+- The only option left is A→Y (even though it's expensive at $30)
+- So: Send 0.2 from A to Y
+
+**Step 4e:** Write down my complete solution
+
+| From/To | Hole X | Hole Y | Total sent |
+|---------|---------|---------|------------|
+| Pile A | 0.4 | 0.2 | 0.6 ✓ |
+| Pile B | 0.0 | 0.4 | 0.4 ✓ |
+| **Total received** | **0.4** ✓ | **0.6** ✓ | **1.0** |
+
+**Step 4f:** Calculate the total cost
+- A→X: 0.4 × $10 = $4.00
+- A→Y: 0.2 × $30 = $6.00  
+- B→Y: 0.4 × $10 = $4.00
+- **Total Cost = $4.00 + $6.00 + $4.00 = $14.00**
+
+This is Solution 1. Now let me try a completely different approach...
+
+### Step 5: Try Another Solution
+
+**Solution 2: "Different Strategy"**
+
+What if we try:
+- A→Y: 0.6 (send all of A to Y)
+- But Y only needs 0.6, so this works perfectly!
+- B→X: 0.4 (send all of B to X)  
+- But X only needs 0.4, so this works too!
+
+**Transport Plan 2:**
+| From/To | Hole X | Hole Y | Total |
+|---------|---------|---------|-------|
+| Pile A | 0.0 | 0.6 | 0.6 ✓ |
+| Pile B | 0.4 | 0.0 | 0.4 ✓ |
+| **Total** | **0.4** ✓ | **0.6** ✓ | **1.0** |
+
+**Cost Calculation:**
+- A→Y: 0.6 × $30 = $18.00
+- B→X: 0.4 × $30 = $12.00
+- **Total Cost = $18.00 + $12.00 = $30.00**
+
+### Step 6: Compare Solutions
+
+- **Solution 1 (Greedy): $14.00**
+- **Solution 2 (Alternative): $30.00**
+
+**Solution 1 is much better!** This is our optimal transport plan.
+
+### Step 7: Convert Back to Real Tons
+
+**Optimal solution in actual tons:**
+- From A to X: 0.4 × 5 = 2 tons
+- From A to Y: 0.2 × 5 = 1 ton  
+- From B to Y: 0.4 × 5 = 2 tons
+
+**Verification:**
+- Pile A sends: 2 + 1 = 3 tons ✓
+- Pile B sends: 2 tons ✓
+- Hole X receives: 2 tons ✓  
+- Hole Y receives: 1 + 2 = 3 tons ✓
+
+### Step 8: The Wasserstein Distance
+
+The **Wasserstein distance** between our dirt distribution and hole distribution is:
+
+**W₁(dirt, holes) = $14.00**
+
+This number tells us the minimum cost to transform the dirt distribution into the hole distribution.
+
+## Key Insights with Numbers
+
+1. **Always try the cheapest moves first**, but respect the constraints
+2. **The optimal cost ($14.00) is much less than naive approaches ($30.00)**
+3. **Wasserstein distance ($14.00) measures how "different" the two distributions are**
+4. **If dirt and holes were in the same places, Wasserstein distance would be $0**
+
+## Real World Meaning
+
+- In machine learning: This $14.00 tells us how much "work" is needed to transform one dataset into another
+- In economics: This represents the most efficient allocation of resources  
+- In physics: This relates to the minimum energy needed for a transformation
+
+The math gives us the **provably best solution** - no other transport plan can cost less than $14.00!
