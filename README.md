@@ -1,2 +1,2 @@
-optimal trasnport simple example
-educaitonal purpose
+optimal transport simple example
+educational purpose
